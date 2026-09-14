@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Recursos Humanos{% endblock %}
+{% block page_title %}👥 Módulo de Recursos Humanos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3 id="form-title">Registrar / Editar Empleado</h3>
+    <form action="{{ url_for('rrhh_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="e_id">
+        <div>
+            <label>Cédula / Identificación:</label>
+            <input type="text" name="cedula" id="cedula" required placeholder="V-00000000">
+        </div>
+        <div>
+            <label>Nombre Completo:</label>
+            <input type="text" name="nombre" id="nombre" required placeholder="Nombre y Apellido">
+        </div>
+        <div>
+            <label>Cargo:</label>
+            <input type="text" name="cargo" id="cargo" required placeholder="Ej: Gerente de Tienda">
+        </div>
+        <div>
+            <label>Salario Mensual ($):</label>
+            <input type="number" step="0.01" name="salario" id="salario" required placeholder="0.00">
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Empleado</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Nómina de Empleados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cédula</th>
+                <th>Nombre</th>
+                <th>Cargo</th>
+                <th>Salario ($)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for e in empleados %}
+            <tr>
+                <td>{{ e.id }}</td>
+                <td>{{ e.cedula }}</td>
+                <td>{{ e.nombre }}</td>
+                <td>{{ e.cargo }}</td>
+                <td>${{ "%.2f"|format(e.salario) }}</td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ e|tojson }})'>Editar</button>
+                    <a href="{{ url_for('rrhh_eliminar', id=e.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar empleado?')">Eliminar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No hay empleados registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(e) {
+    document.getElementById('e_id').value = e.id;
+    document.getElementById('cedula').value = e.cedula;
+    document.getElementById('nombre').value = e.nombre;
+    document.getElementById('cargo').value = e.cargo;
+    document.getElementById('salario').value = e.salario;
+    document.getElementById('form-title').innerText = "Editar Empleado ID: " + e.id;
+}
+function limpiarFormulario() {
+    document.getElementById('e_id').value = '';
+    document.getElementById('cedula').value = '';
+    document.getElementById('nombre').value = '';
+    document.getElementById('cargo').value = '';
+    document.getElementById('salario').value = '';
+    document.getElementById('form-title').innerText = "Registrar / Editar Empleado";
+}
+</script>
+{% endblock %}

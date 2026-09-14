@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Gestor de Usuarios{% endblock %}
+{% block page_title %}🔐 Gestor de Usuarios y Accesos{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3 id="form-title">Crear / Editar Usuario</h3>
+    <form action="{{ url_for('usuarios_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="u_id">
+        <div>
+            <label>Nombre de Usuario:</label>
+            <input type="text" name="usuario" id="usuario" required placeholder="Usuario">
+        </div>
+        <div>
+            <label>Contraseña:</label>
+            <input type="password" name="clave" id="clave" required placeholder="••••••••">
+        </div>
+        <div>
+            <label>Rol asignado:</label>
+            <select name="rol" id="rol">
+                <option value="Administrador">Administrador</option>
+                <option value="Almacenista">Almacenista</option>
+                <option value="Vendedor">Vendedor</option>
+                <option value="Contador">Contador</option>
+                <option value="Analista RRHH">Analista RRHH</option>
+            </select>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Usuario</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Usuarios del Sistema</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Rol</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for u in usuarios %}
+            <tr>
+                <td>{{ u.id }}</td>
+                <td>{{ u.usuario }}</td>
+                <td><strong>{{ u.rol }}</strong></td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ u|tojson }})'>Editar</button>
+                    {% if u.usuario != session.get('usuario') %}
+                    <a href="{{ url_for('usuarios_eliminar', id=u.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar usuario?')">Eliminar</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(u) {
+    document.getElementById('u_id').value = u.id;
+    document.getElementById('usuario').value = u.usuario;
+    document.getElementById('clave').value = u.clave;
+    document.getElementById('rol').value = u.rol;
+    document.getElementById('form-title').innerText = "Editar Usuario ID: " + u.id;
+}
+function limpiarFormulario() {
+    document.getElementById('u_id').value = '';
+    document.getElementById('usuario').value = '';
+    document.getElementById('clave').value = '';
+    document.getElementById('rol').value = 'Administrador';
+    document.getElementById('form-title').innerText = "Crear / Editar Usuario";
+}
+</script>
+{% endblock %}

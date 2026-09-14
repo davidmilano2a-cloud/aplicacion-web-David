@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Almacén{% endblock %}
+{% block page_title %}📦 Módulo de Almacén{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3 id="form-title">Registrar / Editar Producto</h3>
+    <form action="{{ url_for('almacen_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="item_id">
+        <div>
+            <label>Código:</label>
+            <input type="text" name="codigo" id="codigo" required placeholder="Ej: REP-102">
+        </div>
+        <div>
+            <label>Nombre del Producto:</label>
+            <input type="text" name="nombre" id="nombre" required placeholder="Ej: Pastillas de Freno">
+        </div>
+        <div>
+            <label>Cantidad (Stock):</label>
+            <input type="number" name="cantidad" id="cantidad" required placeholder="0">
+        </div>
+        <div>
+            <label>Precio ($):</label>
+            <input type="number" step="0.01" name="precio" id="precio" required placeholder="0.00">
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Producto</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar Formulario</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Inventario Registrado</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Producto</th>
+                <th>Stock</th>
+                <th>Precio ($)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td>{{ item.id }}</td>
+                <td>{{ item.codigo }}</td>
+                <td>{{ item.nombre }}</td>
+                <td>{{ item.cantidad }}</td>
+                <td>${{ "%.2f"|format(item.precio) }}</td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ item.id }}, "{{ item.codigo }}", "{{ item.nombre }}", {{ item.cantidad }}, {{ item.precio }})'>Editar</button>
+                    <a href="{{ url_for('almacen_eliminar', id=item.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar este producto?')">Eliminar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No hay productos registrados.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(id, codigo, nombre, cantidad, precio) {
+    document.getElementById('item_id').value = id;
+    document.getElementById('codigo').value = codigo;
+    document.getElementById('nombre').value = nombre;
+    document.getElementById('cantidad').value = cantidad;
+    document.getElementById('precio').value = precio;
+    document.getElementById('form-title').innerText = "Editar Producto ID: " + id;
+}
+function limpiarFormulario() {
+    document.getElementById('item_id').value = '';
+    document.getElementById('codigo').value = '';
+    document.getElementById('nombre').value = '';
+    document.getElementById('cantidad').value = '';
+    document.getElementById('precio').value = '';
+    document.getElementById('form-title').innerText = "Registrar / Editar Producto";
+}
+</script>
+{% endblock %}

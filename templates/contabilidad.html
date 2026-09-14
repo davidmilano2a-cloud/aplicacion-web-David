@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% block title %}Contabilidad{% endblock %}
+{% block page_title %}📈 Módulo de Contabilidad{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3 id="form-title">Registrar Asiento Contable</h3>
+    <form action="{{ url_for('contabilidad_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="c_id">
+        <div>
+            <label>Descripción:</label>
+            <input type="text" name="descripcion" id="descripcion" required placeholder="Ej: Pago de servicio de luz">
+        </div>
+        <div>
+            <label>Tipo de Movimiento:</label>
+            <select name="tipo" id="tipo">
+                <option value="Ingreso">Ingreso</option>
+                <option value="Egreso">Egreso</option>
+            </select>
+        </div>
+        <div>
+            <label>Monto ($):</label>
+            <input type="number" step="0.01" name="monto" id="monto" required placeholder="0.00">
+        </div>
+        <div>
+            <label>Fecha:</label>
+            <input type="date" name="fecha" id="fecha" required>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Registro</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Libro Diario</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Descripción</th>
+                <th>Tipo</th>
+                <th>Monto ($)</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for c in registros %}
+            <tr>
+                <td>{{ c.id }}</td>
+                <td>{{ c.descripcion }}</td>
+                <td><span style="color: {{ 'green' if c.tipo == 'Ingreso' else 'red' }}; font-weight: bold;">{{ c.tipo }}</span></td>
+                <td>${{ "%.2f"|format(c.monto) }}</td>
+                <td>{{ c.fecha }}</td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ c|tojson }})'>Editar</button>
+                    <a href="{{ url_for('contabilidad_eliminar', id=c.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar asiento contable?')">Eliminar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="6">No hay registros contables.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(c) {
+    document.getElementById('c_id').value = c.id;
+    document.getElementById('descripcion').value = c.descripcion;
+    document.getElementById('tipo').value = c.tipo;
+    document.getElementById('monto').value = c.monto;
+    document.getElementById('fecha').value = c.fecha;
+    document.getElementById('form-title').innerText = "Editar Registro ID: " + c.id;
+}
+function limpiarFormulario() {
+    document.getElementById('c_id').value = '';
+    document.getElementById('descripcion').value = '';
+    document.getElementById('tipo').value = 'Ingreso';
+    document.getElementById('monto').value = '';
+    document.getElementById('fecha').value = '';
+    document.getElementById('form-title').innerText = "Registrar Asiento Contable";
+}
+</script>
+{% endblock %}

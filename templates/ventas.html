@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}Ventas{% endblock %}
+{% block page_title %}🛒 Módulo de Ventas{% endblock %}
+
+{% block content %}
+
+<!-- Tarjeta de Resumen Mensual y Código QR -->
+<div class="card" style="display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 20px;">
+    <div>
+        <h3>📊 Resumen de Ventas del Mes</h3>
+        <p><strong>Período:</strong> {{ mes_nombre }}</p>
+        <p><strong>Operaciones del mes:</strong> {{ cant_mes }} transacción(es)</p>
+        <p><strong>Monto Total Recaudado:</strong> <span style="color: #2e7d32; font-size: 1.2em; font-weight: bold;">${{ "%.2f"|format(total_mes) }}</span></p>
+    </div>
+
+    {% if qr_base64 %}
+    <div style="text-align: center;">
+        <img src="data:image/png;base64,{{ qr_base64 }}" alt="QR Ventas del Mes" style="width: 150px; height: 150px; border: 2px solid #ddd; padding: 5px; border-radius: 8px; background: white;">
+        <p style="font-size: 0.8em; margin-top: 5px; color: #666;">Escanea para ver resumen mensual</p>
+    </div>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3 id="form-title">Procesar / Modificar Venta</h3>
+    <form action="{{ url_for('ventas_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="v_id">
+        <div>
+            <label>Cliente:</label>
+            <input type="text" name="cliente" id="cliente" required placeholder="Nombre del cliente">
+        </div>
+        <div>
+            <label>Producto:</label>
+            <input type="text" name="producto" id="producto" required placeholder="Producto vendido">
+        </div>
+        <div>
+            <label>Cantidad:</label>
+            <input type="number" name="cantidad" id="cantidad" required placeholder="1">
+        </div>
+        <div>
+            <label>Total Venta ($):</label>
+            <input type="number" step="0.01" name="total" id="total" required placeholder="0.00">
+        </div>
+        <div>
+            <label>Fecha:</label>
+            <input type="date" name="fecha" id="fecha" required>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Venta</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Historial de Ventas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Cliente</th>
+                <th>Producto</th>
+                <th>Cant.</th>
+                <th>Total ($)</th>
+                <th>Fecha</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for v in ventas %}
+            <tr>
+                <td>{{ v.id }}</td>
+                <td>{{ v.cliente }}</td>
+                <td>{{ v.producto }}</td>
+                <td>{{ v.cantidad }}</td>
+                <td>${{ "%.2f"|format(v.total) }}</td>
+                <td>{{ v.fecha }}</td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ v|tojson }})'>Editar</button>
+                    <a href="{{ url_for('ventas_eliminar', id=v.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar venta?')">Eliminar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">No hay ventas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(v) {
+    document.getElementById('v_id').value = v.id;
+    document.getElementById('cliente').value = v.cliente;
+    document.getElementById('producto').value = v.producto;
+    document.getElementById('cantidad').value = v.cantidad;
+    document.getElementById('total').value = v.total;
+    document.getElementById('fecha').value = v.fecha;
+    document.getElementById('form-title').innerText = "Editar Venta ID: " + v.id;
+}
+function limpiarFormulario() {
+    document.getElementById('v_id').value = '';
+    document.getElementById('cliente').value = '';
+    document.getElementById('producto').value = '';
+    document.getElementById('cantidad').value = '';
+    document.getElementById('total').value = '';
+    document.getElementById('fecha').value = '';
+    document.getElementById('form-title').innerText = "Procesar / Modificar Venta";
+}
+</script>
+{% endblock %}
