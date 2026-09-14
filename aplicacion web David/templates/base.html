@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DaveCars Web - {% block title %}{% endblock %}</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { display: flex; height: 100vh; background-color: #f4f6f9; }
+        
+        .sidebar { width: 260px; background-color: #1b5e20; color: white; display: flex; flex-direction: column; }
+        .sidebar .brand { padding: 20px; font-size: 20px; font-weight: bold; background-color: #144718; text-align: center; }
+        .sidebar nav { flex: 1; margin-top: 10px; }
+        .sidebar a { display: block; padding: 14px 20px; color: #c8e6c9; text-decoration: none; font-weight: 600; border-left: 4px solid transparent; }
+        .sidebar a:hover, .sidebar a.active { background-color: #2e7d32; color: white; border-left-color: #81c784; }
+        .sidebar a.disabled { color: #81c784; opacity: 0.4; pointer-events: none; }
+        
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+        header { background-color: white; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ddd; }
+        .user-info { font-size: 14px; color: #555; }
+        .btn-logout { background-color: #c62828; color: white; padding: 8px 14px; border-radius: 4px; text-decoration: none; font-size: 12px; font-weight: bold; }
+        
+        .container { padding: 30px; flex: 1; }
+        .card { background-color: white; padding: 25px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 25px; }
+        
+        /* Tablas */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; font-size: 14px; }
+        th { background-color: #f8f9fa; color: #333; font-weight: 600; }
+        tr:hover { background-color: #f1f1f1; }
+        
+        /* Formularios y Botones */
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 14px; }
+        .btn { padding: 9px 16px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; font-size: 13px; }
+        .btn-primary { background-color: #2e7d32; color: white; }
+        .btn-primary:hover { background-color: #1b5e20; }
+        .btn-warning { background-color: #f57c00; color: white; }
+        .btn-danger { background-color: #d32f2f; color: white; }
+        
+        .alert { padding: 12px; border-radius: 4px; margin-bottom: 20px; font-weight: 600; font-size: 14px; }
+        .alert-success { background-color: #c8e6c9; color: #1b5e20; }
+        .alert-danger { background-color: #ffcdd2; color: #b71c1c; }
+        .alert-warning { background-color: #ffe0b2; color: #e65100; }
+    </style>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <div class="brand">🚗 DAVECARS WEB</div>
+        <nav>
+            {% set rol = session.get('rol', '') %}
+            {% set es_admin = rol == 'Administrador' %}
+
+            <a href="{{ url_for('almacen') }}" class="{% if request.endpoint == 'almacen' %}active{% endif %} {% if not es_admin and rol != 'Almacenista' %}disabled{% endif %}">📦 Almacén</a>
+            <a href="{{ url_for('ventas') }}" class="{% if request.endpoint == 'ventas' %}active{% endif %} {% if not es_admin and rol != 'Vendedor' %}disabled{% endif %}">🛒 Ventas</a>
+            <a href="{{ url_for('facturacion') }}" class="{% if request.endpoint == 'facturacion' %}active{% endif %} {% if not es_admin and rol not in ['Vendedor', 'Contador'] %}disabled{% endif %}">🧾 Facturación</a>
+            <a href="{{ url_for('contabilidad') }}" class="{% if request.endpoint == 'contabilidad' %}active{% endif %} {% if not es_admin and rol != 'Contador' %}disabled{% endif %}">📈 Contabilidad</a>
+            <a href="{{ url_for('rrhh') }}" class="{% if request.endpoint == 'rrhh' %}active{% endif %} {% if not es_admin and rol != 'Analista RRHH' %}disabled{% endif %}">👥 Recursos Humanos</a>
+            <a href="{{ url_for('usuarios') }}" class="{% if request.endpoint == 'usuarios' %}active{% endif %} {% if not es_admin %}disabled{% endif %}">🔐 Gestor de Usuarios</a>
+        </nav>
+    </aside>
+
+    <div class="main-content">
+        <header>
+            <h2>{% block page_title %}{% endblock %}</h2>
+            <div class="user-info">
+                Usuario: <strong>{{ session.get('usuario') }}</strong> | Rol: <strong>{{ session.get('rol') }}</strong>
+                <a href="{{ url_for('logout') }}" class="btn-logout" style="margin-left: 15px;">Cerrar Sesión</a>
+            </div>
+        </header>
+
+        <div class="container">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+</body>
+</html>

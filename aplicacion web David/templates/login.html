@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>DaveCars - Iniciar Sesión</title>
+    <style>
+        body { background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }
+        .login-card { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        h1 { color: #1b5e20; font-size: 24px; margin-bottom: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background-color: #2e7d32; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer; }
+        button:hover { background-color: #1b5e20; }
+        .alert { background-color: #ffcdd2; color: #b71c1c; padding: 10px; border-radius: 4px; font-size: 13px; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h1>🚗 DAVECARS</h1>
+        <p style="margin-bottom: 15px; color: #666;">Acceso al Sistema</p>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <form method="POST">
+            <input type="text" name="usuario" placeholder="Usuario" required>
+            <input type="password" name="clave" placeholder="Contraseña" required>
+            <button type="submit">INICIAR SESIÓN</button>
+        </form>
+    </div>
+</body>
+</html>

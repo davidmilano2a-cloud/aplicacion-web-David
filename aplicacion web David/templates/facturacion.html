@@ -1,0 +1,99 @@
+{% extends "base.html" %}
+{% block title %}Facturación{% endblock %}
+{% block page_title %}🧾 Módulo de Facturación{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h3 id="form-title">Emitir / Modificar Factura</h3>
+    <form action="{{ url_for('facturacion_guardar') }}" method="POST" class="form-grid">
+        <input type="hidden" name="id" id="f_id">
+        <div>
+            <label>N° Factura:</label>
+            <!-- Se corrigió name="numero_factura" para coincidir con app.py -->
+            <input type="text" name="numero_factura" id="numero_factura" required placeholder="FAC-0001">
+        </div>
+        <div>
+            <label>Cliente:</label>
+            <input type="text" name="cliente" id="cliente" required placeholder="Nombre del cliente">
+        </div>
+        <div>
+            <label>Fecha:</label>
+            <!-- Campo de fecha requerido por la base de datos -->
+            <input type="date" name="fecha" id="fecha" required>
+        </div>
+        <div>
+            <label>Monto Total ($):</label>
+            <input type="number" step="0.01" name="monto" id="monto" required placeholder="0.00">
+        </div>
+        <div>
+            <label>Estado:</label>
+            <select name="estado" id="estado">
+                <option value="Pendiente">Pendiente</option>
+                <option value="Pagada">Pagada</option>
+                <option value="Anulada">Anulada</option>
+            </select>
+        </div>
+        <div style="grid-column: 1 / -1; margin-top: 10px;">
+            <button type="submit" class="btn btn-primary">Guardar Factura</button>
+            <button type="button" class="btn btn-warning" onclick="limpiarFormulario()">Limpiar</button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <h3>Comprobantes Registrados</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>N° Factura</th>
+                <th>Cliente</th>
+                <th>Fecha</th>
+                <th>Monto ($)</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in facturas %}
+            <tr>
+                <td>{{ f.id }}</td>
+                <td>{{ f.numero_factura }}</td>
+                <td>{{ f.cliente }}</td>
+                <td>{{ f.fecha }}</td>
+                <td>${{ "%.2f"|format(f.monto) }}</td>
+                <td><strong>{{ f.estado }}</strong></td>
+                <td>
+                    <button class="btn btn-warning" onclick='editar({{ f|tojson }})'>Editar</button>
+                    <a href="{{ url_for('facturacion_eliminar', id=f.id) }}" class="btn btn-danger" onclick="return confirm('¿Eliminar factura?')">Eliminar</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7">No hay facturas registradas.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+function editar(f) {
+    document.getElementById('f_id').value = f.id;
+    document.getElementById('numero_factura').value = f.numero_factura;
+    document.getElementById('cliente').value = f.cliente;
+    document.getElementById('fecha').value = f.fecha;
+    document.getElementById('monto').value = f.monto;
+    document.getElementById('estado').value = f.estado;
+    document.getElementById('form-title').innerText = "Editar Factura: " + f.numero_factura;
+}
+
+function limpiarFormulario() {
+    document.getElementById('f_id').value = '';
+    document.getElementById('numero_factura').value = '';
+    document.getElementById('cliente').value = '';
+    document.getElementById('fecha').value = '';
+    document.getElementById('monto').value = '';
+    document.getElementById('estado').value = 'Pendiente';
+    document.getElementById('form-title').innerText = "Emitir / Modificar Factura";
+}
+</script>
+{% endblock %}
